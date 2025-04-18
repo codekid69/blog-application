@@ -1,0 +1,69 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+
+    <!-- Brand -->
+    <a class="navbar-brand" href="/">Bloggo</a>
+
+    <!-- Name + Profile Pic (Always Visible) -->
+    <% if (user) { %>
+      <div class="d-flex align-items-center ms-auto me-3 d-lg-none">
+        <!-- Only show this on mobile -->
+        <span class="text-white me-2">Hi, <%= user.name %></span>
+        <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="profile"
+             class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+      </div>
+    <% } else { %>
+      <div class="d-flex align-items-center ms-auto me-3 d-lg-none">
+        <span class="text-white me-2">Hi, Guest</span>
+        <img src="/images/useravatar.png" alt="guest-profile"
+             class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+      </div>
+    <% } %>
+
+    <!-- Toggler Button -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Hamburger Content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
+
+        <!-- Desktop view only: Name + Profile Pic -->
+        <% if (user) { %>
+          <li class="nav-item d-none d-lg-flex align-items-center me-3">
+            <span class="text-white me-2">Hi, <%= user.name %></span>
+            <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="profile"
+              class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+          </li>
+
+          <!-- Add Blog -->
+          <li class="nav-item">
+            <a class="nav-link" href="/blog">Add Blog</a>
+          </li>
+
+          <!-- Logout -->
+          <li class="nav-item">
+            <form action="/user/logout" method="POST" class="d-inline">
+              <button class="btn btn-outline-light ms-3" type="submit">Logout</button>
+            </form>
+          </li>
+        <% } else { %>
+          <li class="nav-item d-none d-lg-flex align-items-center me-3">
+            <span class="text-white me-2">Hi, Guest</span>
+            <img src="/images/useravatar.png" alt="guest-profile"
+              class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+          </li>
+
+          <!-- Login Button -->
+          <li class="nav-item mt-2 mt-sm-0">
+            <a class="btn btn-outline-light ms-3" href="/user/signin">Login</a>
+          </li>
+        <% } %>
+
+      </ul>
+    </div>
+
+  </div>
+</nav>
