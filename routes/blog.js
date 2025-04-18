@@ -2,13 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middlewares/authentication');
 const multer = require('multer');
-const path = require('path');
+const streamifier = require('streamifier');
+const cloudinary = require('cloudinary').v2;
 const Blog = require('../models/blog');
-const User = require('../models/user');
 const Comment = require('../models/comment');
 require('dotenv').config();
-// configure coludinary for saving images to cloud
-const cloudinary = require('cloudinary').v2;
 
 // Cloudinary setup
 cloudinary.config({
@@ -17,19 +15,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
-
-
-// Multer config
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
-
+// Multer config for memory storage (instead of disk storage)
+const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
@@ -60,7 +47,6 @@ router.get('/:id', async (req, res) => {
                 }
             })
             .exec();
-
 
         if (!blog) {
             return res.redirect('/');  // Redirect if blog not found
@@ -93,7 +79,6 @@ router.get('/:id', async (req, res) => {
         const isOwner = req.user && req.user._id.toString() === blog.createdBy._id.toString();
 
         // Render blog page with populated data
-
         return res.render('blog', { blog, isOwner, user: req.user ,message: req.query.msg });
 
     } catch (error) {
@@ -101,8 +86,6 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
-
 
 // POST: create blog with optional image
 router.post('/', requireAuth, upload.single('coverImageUrl'), async (req, res) => {
@@ -113,11 +96,18 @@ router.post('/', requireAuth, upload.single('coverImageUrl'), async (req, res) =
 
     if (coverImage) {
         try {
-            // Cloudinary upload logic
-            const result = await cloudinary.uploader.upload(coverImage.path, {
-                folder: 'blog_images', // Folder on Cloudinary (optional)
-                public_id: Date.now() + '-' + coverImage.originalname // Optional: Custom public_id
+            // Upload image directly to Cloudinary from memory buffer
+            const result = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'blog_images', public_id: Date.now() + '-' + coverImage.originalname },
+                    (error, result) => {
+                        if (error) reject(error);
+                        resolve(result);
+                    }
+                );
+                streamifier.createReadStream(coverImage.buffer).pipe(stream);
             });
+
             coverImageUrl = result.secure_url;  // URL of the uploaded image
         } catch (error) {
             console.error('Error uploading image to Cloudinary:', error);
@@ -139,10 +129,8 @@ router.post('/', requireAuth, upload.single('coverImageUrl'), async (req, res) =
     }
 });
 
-
 // Add a comment to a blog post
 router.post('/comment/:id', requireAuth, async (req, res) => {
-    // console.log("posting comment", req.user);
     const postId = req.params.id;
     const userId = req.user._id;
     const { text } = req.body;
@@ -168,8 +156,7 @@ router.post('/comment/:id', requireAuth, async (req, res) => {
     }
 });
 
-
-
+// Update a blog
 router.post('/update/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -177,10 +164,12 @@ router.post('/update/:id', async (req, res) => {
         return res.redirect(`/blog/${id}`);
 
     } catch (error) {
-
+        console.error("Error updating blog:", error);
+        res.status(500).send("Error updating blog");
     }
-})
+});
 
+// Delete a blog
 router.post('/delete/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -191,15 +180,14 @@ router.post('/delete/:id', async (req, res) => {
             return res.status(404).send('Blog not found');
         }
 
-        // Redirect to homepage or wherever you want after successful deletion
         res.redirect('/');
     } catch (error) {
         console.error('Error deleting blog:', error);
         res.status(500).send('Internal Server Error');
-        res.redirect('/');
     }
 });
 
+// Delete a comment
 router.post('/comment/delete/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -207,13 +195,10 @@ router.post('/comment/delete/:id', async (req, res) => {
 
         await Comment.findByIdAndDelete(id);
         res.redirect(`/blog/${blogId}?msg=Comment deleted successfully!`);
-        // Redirect with a query parameter to show success message
-        return res.redirect(`/blog/${blogId}?msg=Comment deleted successfully!`);
     } catch (e) {
-        // console.log(e);
+        console.error(e);
         res.redirect('/');
     }
 });
-
 
 module.exports = router;
