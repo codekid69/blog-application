@@ -150,7 +150,8 @@
           <div class="col-md-4">
             <div class="card blog-card">
               <!-- Blog Cover Image -->
-              <img src="<%= blog.coverImageUrl ? blog.coverImageUrl : '/uploads/default-image.jpg' %>" class="card-img-top" alt="<%= blog.title %>">
+              <img src="<%= blog.coverImageUrl && blog.coverImageUrl.startsWith('http') ? blog.coverImageUrl : 'https://res.cloudinary.com/demo/image/upload/v123456/default-image.jpg' %>" class="card-img-top" alt="<%= blog.title %>">
+
 
               <div class="card-body">
                 <!-- Blog Title -->
