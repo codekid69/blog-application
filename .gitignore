@@ -11,4 +11,5 @@ node_modules/
 logs
 *.log
 
-
+# Optional:
+uploads/
