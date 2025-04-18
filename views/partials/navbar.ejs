@@ -28,7 +28,7 @@
 
     <!-- Hamburger Content -->
     <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex flex-column align-items-start">
 
         <!-- Desktop view only: Name + Profile Pic -->
         <% if (user) { %>
@@ -38,15 +38,15 @@
               class="rounded-circle" width="35" height="35" style="object-fit: cover;">
           </li>
 
-          <!-- Add Blog -->
-          <li class="nav-item">
-            <a class="nav-link" href="/blog">Add Blog</a>
+          <!-- Add Blog (Link) -->
+          <li class="nav-item mb-2">
+            <a class="nav-link text-white" href="/blog">Add Blog</a>
           </li>
 
-          <!-- Logout -->
-          <li class="nav-item">
+          <!-- Logout (Form) -->
+          <li class="nav-item mb-2">
             <form action="/user/logout" method="POST" class="d-inline">
-              <button class="btn btn-outline-light ms-3" type="submit">Logout</button>
+              <button class="btn btn-outline-light w-100" type="submit">Logout</button>
             </form>
           </li>
         <% } else { %>
@@ -56,9 +56,9 @@
               class="rounded-circle" width="35" height="35" style="object-fit: cover;">
           </li>
 
-          <!-- Login Button -->
-          <li class="nav-item mt-2 mt-sm-0">
-            <a class="btn btn-outline-light ms-3" href="/user/signin">Login</a>
+          <!-- Login Button (Now below the brand name in mobile) -->
+          <li class="nav-item mt-2 mt-sm-0 d-lg-none">
+            <a class="btn btn-outline-light ms-0" href="/user/signin">Login</a>
           </li>
         <% } %>
 
