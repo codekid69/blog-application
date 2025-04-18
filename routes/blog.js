@@ -10,9 +10,9 @@ require('dotenv').config();
 
 // Cloudinary setup
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Multer config for memory storage (instead of disk storage)
@@ -31,6 +31,15 @@ const upload = multer({ storage, fileFilter });
 router.get('/', requireAuth, (req, res) => {
     res.render("addBlog");
 });
+router.get('/myblogs', requireAuth, async (req, res) => {
+    try {
+        const blogs = await Blog.find({ createdBy: req.user._id });
+        res.render('myBlogs', { blogs,user:req.user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching blogs');
+    }
+}); 
 
 router.get('/:id', async (req, res) => {
     const blogId = req.params.id;
@@ -79,7 +88,7 @@ router.get('/:id', async (req, res) => {
         const isOwner = req.user && req.user._id.toString() === blog.createdBy._id.toString();
 
         // Render blog page with populated data
-        return res.render('blog', { blog, isOwner, user: req.user ,message: req.query.msg });
+        return res.render('blog', { blog, isOwner, user: req.user, message: req.query.msg });
 
     } catch (error) {
         console.error("Error fetching blog details:", error);
@@ -213,5 +222,6 @@ router.post('/comment/delete/:id', async (req, res) => {
         res.redirect('/');
     }
 });
+
 
 module.exports = router;
