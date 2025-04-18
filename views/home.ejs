@@ -153,7 +153,10 @@
               <div class="card-body">
                 <h5 class="card-title"><%= blog.title %></h5>
 
-                <p class="blog-author">📝 By <%= blog.createdBy?.name || 'Unknown' %></p>
+                <p class="blog-author">
+                  📝 By <%= blog.createdBy?.name || 'Unknown' %> | 🕒
+                  <%= blog.timeAgo %>
+                </p>
 
                 <p class="card-text"><%= blog.body.substring(0, 150) %>...</p>
 

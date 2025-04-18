@@ -133,11 +133,12 @@
 
 <body>
   <%- include('./partials/navbar') %>
+
   <div class="container mt-5">
-    <div class="go-back-btn">
+    <div class="go-back-btn mb-3">
       <a href="/" class="btn btn-secondary">← Go Back</a>
     </div>
-  <div class="container mt-5">
+
     <h1 class="mb-5"><%= user.name %>'s Blogs</h1>
 
     <% if (blogs && blogs.length > 0) { %>
@@ -149,9 +150,7 @@
 
               <div class="card-body">
                 <h5 class="card-title"><%= blog.title %></h5>
-
                 <p class="card-text"><%= blog.body.substring(0, 150) %>...</p>
-
                 <div class="btn-container">
                   <a href="/blog/<%= blog._id %>" class="btn btn-primary">Read More</a>
                 </div>
