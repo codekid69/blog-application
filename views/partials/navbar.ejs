@@ -16,45 +16,49 @@
 
         <!-- Desktop view only: Name + Profile Pic -->
         <% if (user) { %>
-          <li class="nav-item d-none d-lg-flex align-items-center">
-            <span class="text-white me-2">Hi, <%= user.name %></span>
-            <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="profile"
-              class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+          <li class="nav-item d-flex align-items-center gap-2 mb-2 mb-lg-0">
+            <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="profile" class="rounded-circle"
+              width="35" height="35" style="object-fit: cover;">
+            <span class="text-white">
+              <%= user.name %>
+            </span>
           </li>
 
+
           <!-- My Blogs Link (New) -->
-          <li class="nav-item mb-2 mb-lg-0">
+          <!-- My Blogs Link -->
+          <li class="nav-item mb-2 mb-lg-0 mobile-left-margin">
             <a class="nav-link text-white" href="/blog/myblogs">My Blogs</a>
           </li>
 
-          <!-- Add Blog (Link) -->
-          <li class="nav-item mb-2 mb-lg-0">
+          <!-- Add Blog -->
+          <li class="nav-item mb-2 mb-lg-0 mobile-left-margin">
             <a class="nav-link text-white" href="/blog">Add Blog</a>
           </li>
 
-          <!-- Logout (Form) -->
+          <!-- Logout -->
           <li class="nav-item mb-2 mb-lg-0">
             <form action="/user/logout" method="POST" class="d-inline">
               <button class="btn btn-outline-light" type="submit">Logout</button>
             </form>
           </li>
-        <% } else { %>
-          <li class="nav-item d-none d-lg-flex align-items-center">
-            <span class="text-white me-2">Hi, Guest</span>
-            <img src="/images/useravatar.png" alt="guest-profile" class="rounded-circle" width="35" height="35"
-              style="object-fit: cover;">
-          </li>
+          <% } else { %>
+            <li class="nav-item d-none d-lg-flex align-items-center">
+              <span class="text-white me-2">Hi, Guest</span>
+              <img src="/images/useravatar.png" alt="guest-profile" class="rounded-circle" width="35" height="35"
+                style="object-fit: cover;">
+            </li>
 
-          <!-- Login Button (Mobile only) -->
-          <li class="nav-item mt-2 mt-sm-0 d-lg-none">
-            <a class="btn btn-outline-light ms-0" href="/user/signin">Login</a>
-          </li>
+            <!-- Login Button (Mobile only) -->
+            <li class="nav-item mt-2 mt-sm-0 d-lg-none">
+              <a class="btn btn-outline-light ms-0" href="/user/signin">Login</a>
+            </li>
 
-          <!-- Login Button (Desktop only) -->
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-outline-light" href="/user/signin">Login</a>
-          </li>
-        <% } %>
+            <!-- Login Button (Desktop only) -->
+            <li class="nav-item d-none d-lg-block">
+              <a class="btn btn-outline-light" href="/user/signin">Login</a>
+            </li>
+            <% } %>
 
       </ul>
     </div>
