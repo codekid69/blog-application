@@ -31,15 +31,64 @@ const upload = multer({ storage, fileFilter });
 router.get('/', requireAuth, (req, res) => {
     res.render("addBlog");
 });
+
 router.get('/myblogs', requireAuth, async (req, res) => {
     try {
-        const blogs = await Blog.find({ createdBy: req.user._id });
-        res.render('myBlogs', { blogs,user:req.user });
+        // Fetch all blogs created by the logged-in user in descending order of creation (newest first)
+        const blogs = await Blog.find({ createdBy: req.user._id })
+            .sort({ createdAt: -1 }); // Sort by newest
+
+        // Calculate time ago for each blog
+        const blogsWithTime = blogs.map(blog => {
+            const now = new Date();
+            const createdAt = new Date(blog.createdAt);
+            const seconds = Math.floor((now - createdAt) / 1000);
+
+            let interval = Math.floor(seconds / 31536000); // years
+            if (interval >= 1) {
+                blog.timeAgo = interval + ' year' + (interval > 1 ? 's' : '') + ' ago';
+            } else {
+                interval = Math.floor(seconds / 2592000); // months
+                if (interval >= 1) {
+                    blog.timeAgo = interval + ' month' + (interval > 1 ? 's' : '') + ' ago';
+                } else {
+                    interval = Math.floor(seconds / 604800); // weeks
+                    if (interval >= 1) {
+                        blog.timeAgo = interval + ' week' + (interval > 1 ? 's' : '') + ' ago';
+                    } else {
+                        interval = Math.floor(seconds / 86400); // days
+                        if (interval >= 1) {
+                            blog.timeAgo = interval + ' day' + (interval > 1 ? 's' : '') + ' ago';
+                        } else {
+                            interval = Math.floor(seconds / 3600); // hours
+                            if (interval >= 1) {
+                                blog.timeAgo = interval + ' hour' + (interval > 1 ? 's' : '') + ' ago';
+                            } else {
+                                interval = Math.floor(seconds / 60); // minutes
+                                if (interval >= 1) {
+                                    blog.timeAgo = interval + ' minute' + (interval > 1 ? 's' : '') + ' ago';
+                                } else {
+                                    blog.timeAgo = 'just now';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return blog;
+        });
+
+        console.log("My Blogs with Time Ago:", blogsWithTime);
+
+        // Render the myBlogs page and pass blogs and user info (if available)
+        res.render('myBlogs', { blogs: blogsWithTime, user: req.user });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching blogs');
     }
-}); 
+});
+
 
 router.get('/:id', async (req, res) => {
     const blogId = req.params.id;
