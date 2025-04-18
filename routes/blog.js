@@ -88,20 +88,28 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST: create blog with optional image
+// POST: create blog with optional image
 router.post('/', requireAuth, upload.single('coverImageUrl'), async (req, res) => {
     const { title, body } = req.body;
     const coverImage = req.file;  // Get file from multer
+
+    console.log("✅ Request body:", req.body);
+    console.log("📸 Cover image from multer:", coverImage);
 
     let coverImageUrl = null;
 
     if (coverImage) {
         try {
+            console.log("🚀 Uploading to Cloudinary...");
             // Upload image directly to Cloudinary from memory buffer
             const result = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: 'blog_images', public_id: Date.now() + '-' + coverImage.originalname },
                     (error, result) => {
-                        if (error) reject(error);
+                        if (error) {
+                            console.error("❌ Cloudinary upload error:", error);
+                            reject(error);
+                        }
                         resolve(result);
                     }
                 );
@@ -109,25 +117,30 @@ router.post('/', requireAuth, upload.single('coverImageUrl'), async (req, res) =
             });
 
             coverImageUrl = result.secure_url;  // URL of the uploaded image
+            console.log("✅ Cloudinary upload success. URL:", coverImageUrl);
         } catch (error) {
-            console.error('Error uploading image to Cloudinary:', error);
+            console.error('🔥 Error uploading image to Cloudinary:', error);
             return res.status(500).send('Error uploading image');
         }
+    } else {
+        console.warn("⚠️ No image uploaded.");
     }
 
     try {
-        await Blog.create({
+        const blog = await Blog.create({
             title,
             body,
             coverImageUrl,  // Save the Cloudinary URL in the database
             createdBy: req.user._id
         });
+        console.log("✅ Blog created:", blog);
         res.redirect('/');
     } catch (err) {
-        console.error("Error creating blog:", err);
+        console.error("🚨 Error creating blog:", err);
         res.status(500).send("Something went wrong");
     }
 });
+
 
 // Add a comment to a blog post
 router.post('/comment/:id', requireAuth, async (req, res) => {
