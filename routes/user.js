@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const express = require('express');
 const router = express.Router();
-const { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage } = require('../controllers/user');
+const { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage, getUserProfile } = require('../controllers/user');
 const { requireAuth } = require('../middlewares/authentication');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
@@ -33,5 +33,6 @@ router.post('/logout', logout);
 router.post('/signin', signInUser)
 router.post('/signup', signUpUser)
 router.get('/settings', requireAuth, getSettingsPage);
+router.get('/profile/:id',requireAuth,getUserProfile)
 
 module.exports = router;

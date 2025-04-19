@@ -42,7 +42,6 @@ const getAllBlogs = async (req, res) => {
         });
 
         // Render the home page and pass blogs and user info (if available)
-
         return res.render('home', { user: req.user, blogs: blogsWithTime });
     } catch (error) {
         console.log("Error fetching blogs:", error);

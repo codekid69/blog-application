@@ -95,56 +95,59 @@
 
 <body>
   <%- include('./partials/navbar') %>
-  
 
   <main class="container">
     <div class="container mt-5">
-    <div class="go-back-btn mb-3">
-      <a href="/" class="btn btn-secondary">← Go Back</a>
-    </div>
-    <div class="profile-card">
-      <h1>Profile Settings</h1>
-
-      <!-- Profile Picture -->
-      <div class="mb-4 text-center">
-        <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="Profile Picture" class="profile-pic mb-3" id="profilePicPreview">
+      <div class="go-back-btn mb-3">
+        <a href="/" class="btn btn-secondary">← Go Back</a>
       </div>
+      <div class="profile-card">
+        <% if (!otherProfile) { %>
+        <h1>Profile Settings</h1>
+        <% } %>
+        <!-- Profile Picture -->
+        <div class="mb-4 text-center">
+          <img src="<%= profileUser.profileImageUrl || '/images/useravatar.png' %>" alt="Profile Picture" class="profile-pic mb-3" id="profilePicPreview">
+        </div>
 
-      <!-- Profile Information -->
-      <div id="profileInfo">
-        <p><strong>Name:</strong> <%= user.name %></p>
-        <p><strong>Email:</strong> <%= user.email %></p>
+        <!-- Profile Information -->
+        <div id="profileInfo">
+          <p><strong>Name:</strong> <%= profileUser.name %></p>
+          <p><strong>Email:</strong> <%= profileUser.email %></p>
 
-        <!-- Edit Button -->
-        <button id="editBtn" class="btn btn-primary w-100">Edit Profile</button>
-      </div>
+          <!-- Edit Button -->
+          <% if (!otherProfile) { %>
+            <button id="editBtn" class="btn btn-primary w-100">Edit Profile</button>
+          <% } %>
+        </div>
 
-      <!-- Personal Info Form (Initially hidden) -->
-      <div id="profileFormContainer" class="edit-form">
-        <form id="profileForm" action="/user/update/<%= user._id %>" method="POST" enctype="multipart/form-data">
-          <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required />
-          </div>
-        
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required />
-          </div>
+        <!-- Personal Info Form (Initially hidden) -->
+        <div id="profileFormContainer" class="edit-form">
+          <form id="profileForm" action="/user/update/<%= profileUser._id %>" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" value="<%= profileUser.name %>" required />
+            </div>
 
-          <!-- Profile Picture upload inside the form -->
-          <div class="mb-3">
-            <label for="profileImageUrl" class="form-label">Profile Picture</label>
-            <input type="file" class="form-control" id="profileImageUrl" name="profileImageUrl" accept="image/*" />
-          </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" value="<%= profileUser.email %>" required />
+            </div>
 
-          <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-            <span id="btnText">Save Changes</span>
-            <div id="loadingSpinner" class="spinner-border spinner-border-sm text-light" role="status"></div>
-          </button>
+            <!-- Profile Picture upload inside the form -->
+            <div class="mb-3">
+              <label for="profileImageUrl" class="form-label">Profile Picture</label>
+              <input type="file" class="form-control" id="profileImageUrl" name="profileImageUrl" accept="image/*" />
+            </div>
 
-          <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelBtn">Cancel</button>
-        </form>
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+              <span id="btnText">Save Changes</span>
+              <div id="loadingSpinner" class="spinner-border spinner-border-sm text-light" role="status"></div>
+            </button>
+
+            <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelBtn">Cancel</button>
+          </form>
+        </div>
       </div>
     </div>
   </main>

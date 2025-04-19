@@ -152,7 +152,7 @@ const updateUser = async (req, res) => {
 const getSettingsPage = async (req, res) => {
     try {
         const user = await User.findById(req.user._id); // Fetch user details from the database
-        res.render('profile', { user }); // Pass user data to the template
+        res.render('profile', { profileUser:user, otherProfile: false }); // Pass user data to the template
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -160,6 +160,28 @@ const getSettingsPage = async (req, res) => {
 }
 
 
+const getUserProfile = async (req, res) => {
+    const id = req.params.id;
+
+    // Ensure the logged-in user is not viewing their own profile
+    if (req.user._id.toString() === id) {
+        return res.redirect('/');
+    }
+
+    try {
+        // Find user by their ID
+        const user = await User.findById(id);
+        // Render the profile page with the user data
+        return res.render('profile', {
+            profileUser:user, // passing the user data to the template
+            otherProfile: true, // indicates that this is another user's profile
+            user: req.user
+        });
+    } catch (err) {
+      return res.redirect('/');
+    }
+};
 
 
-module.exports = { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage };
+
+module.exports = { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage, getUserProfile };
