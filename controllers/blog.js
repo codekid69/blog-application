@@ -164,7 +164,7 @@ const getPostDetails = async (req, res) => {
 
         // Check if the user is the owner of the blog
         const isOwner = req.user && req.user._id.toString() === blog.createdBy._id.toString();
-
+    console.log("rendering",blog);
         // Render blog page with populated data
         return res.render('blog', { blog, isOwner, user: req.user, message: req.query.msg });
 

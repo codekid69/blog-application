@@ -156,6 +156,14 @@
     <div class="blog-card">
       <img src="<%= blog.coverImageUrl ? blog.coverImageUrl : '/uploads/default-image.jpg' %>" class="card-img-top" alt="<%= blog.title %>">
       <div class="card-body">
+        <!-- Displaying createdBy info (user's avatar and name) -->
+        <div class="blog-author d-flex align-items-center mb-3">
+          <img src="<%= blog.createdBy.profileImageUrl ? blog.createdBy.profileImageUrl : '/uploads/default-avatar.jpg' %>"
+            alt="<%= blog.createdBy.name %>'s avatar" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+          <span class="ms-2 text-white"><%= blog.createdBy.name %></span>
+          <span class="ms-2 text-muted" style="font-size: 0.85rem;">&bull; <%= blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : 'N/A' %></span>
+        </div>
+    
         <!-- View Mode -->
         <div id="view-mode">
           <h5 class="card-title" id="blog-title-text">
@@ -164,7 +172,7 @@
           <p class="card-text" id="blog-body-text">
             <%= blog.body %>
           </p>
-
+    
           <% if (isOwner) { %>
             <div class="edit-delete-buttons">
               <button class="btn btn-primary" onclick="enterEditMode()">Edit</button>
@@ -174,7 +182,7 @@
             </div>
           <% } %>
         </div>
-
+    
         <!-- Edit Mode -->
         <form id="edit-mode" action="/blog/update/<%= blog._id %>" method="POST" style="display: none;">
           <input type="hidden" name="blogId" value="<%= blog._id %>">
@@ -191,6 +199,7 @@
         </form>
       </div>
     </div>
+    
 
     <div class="comment-section">
       <h3 class="text-white">Comments</h3>
