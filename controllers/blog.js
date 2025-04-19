@@ -4,6 +4,7 @@ const multer = require('multer');
 const streamifier = require('streamifier');
 const cloudinary = require('cloudinary').v2;
 const timeAgo = require('../utils/timeAgo');
+const transporter  = require('../utils/mail');
 require('dotenv').config();
 
 // Cloudinary setup
@@ -193,11 +194,35 @@ const addCommentToPost = async (req, res) => {
             $push: { comments: newComment._id }
         });
 
+        //sending mail notification to blog owner
+        const blog = await Blog.findById(postId).populate('createdBy');
+        if (blog?.createdBy?.email && blog.createdBy._id.toString() !== userId.toString()) {
+            const mailOptions = {
+                from: `"Bloggo" <${process.env.EMAIL_USER}>`,
+                to: blog.createdBy.email,
+                subject: `New comment on your blog "${blog.title}"`,
+                html: `
+                  <p>Hi ${blog.createdBy.name || 'there'},</p>
+                  <p><strong>${req.user.name || 'Someone'}</strong> commented on your blog:</p>
+                  <blockquote>${text}</blockquote>
+                  <p><a href="https://blog-application-hal1.onrender.com/blog/${blog._id}">View Blog</a></p>
+                  <p>— Bloggo</p>
+                `,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("❌ Mail not sent:", error);
+                } else {
+                    console.log("✅ Email sent:", info.response);
+                }
+            });
+        }
+
         // Redirect to the blog page where the comment is shown
-        res.redirect(`/blog/${postId}`);
+        return res.redirect(`/blog/${postId}`);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error adding comment');
+        res.redirect(`/blog/${blogId}?msg=Comment cannot be posted at the moment!`);
     }
 }
 
