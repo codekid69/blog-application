@@ -150,7 +150,7 @@
   <%- include('./partials/navbar') %>
 
   <main class="container mt-5 flex-grow-1">
-    <h1 class="mb-5">All Blogs</h1>
+    <h1 class="mb-5">Explore Page</h1>
 
     <% if (blogs && blogs.length > 0) { %>
       <div class="row">
@@ -166,10 +166,16 @@
                   <%= blog.title %>
                 </h5>
 
-                <p class="blog-author">
-                  📝 By <%= blog.createdBy?.name || 'Unknown' %> | 🕒
-                    <%= blog.timeAgo %>
-                </p>
+                <div class="blog-author d-flex align-items-center gap-2">
+                  <img src="<%= blog.createdBy?.profileImageUrl || 'https://res.cloudinary.com/demo/image/upload/v123456/default-avatar.jpg' %>" 
+                       alt="Profile Pic" 
+                       class="rounded-circle" 
+                       width="32" height="32" 
+                       style="object-fit: cover;">
+                  <span>
+                    <strong><%= blog.createdBy?.name || 'Unknown' %></strong> | <%= blog.timeAgo %>
+                  </span>
+                </div>
 
                 <p class="card-text">
                   <%= blog.body.substring(0, 150) %>...
