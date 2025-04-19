@@ -152,7 +152,7 @@ const updateUser = async (req, res) => {
 const getSettingsPage = async (req, res) => {
     try {
         const user = await User.findById(req.user._id); // Fetch user details from the database
-        res.render('profile', { profileUser:user, otherProfile: false }); // Pass user data to the template
+        res.render('profile', { user, otherProfile: false }); // Pass user data to the template
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
