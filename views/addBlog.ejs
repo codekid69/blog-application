@@ -149,8 +149,11 @@
 </head>
 
 <body>
-
+    <%- include('./partials/navbar') %>
     <div class="container">
+        <div class="go-back-btn mb-3">
+            <a href="/" class="btn btn-secondary">← Go Back</a>
+          </div>
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card shadow-lg rounded-4">
@@ -182,15 +185,13 @@
                             <button type="submit" class="btn btn-primary w-100">Publish Blog</button>
                         </form>
 
-                        <div class="text-center mt-3">
-                            <a href="/" class="btn btn-link">Go Back </a>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <%- include('./partials/footer') %>
     <%- include('./partials/scripts') %>
 </body>
 

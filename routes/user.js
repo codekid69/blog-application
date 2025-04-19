@@ -1,46 +1,37 @@
 const User = require('../models/user');
-
 const express = require('express');
-
 const router = express.Router();
-
-router.get('/signin', (req, res) => {
-    return res.render("signin");
-})
-router.get('/signup', (req, res) => {
-    return res.render("signup");
-})
-router.post('/logout', (req, res) => {
-    res.clearCookie('token'); // remove cookie from browser
-    res.redirect('/'); // redirect to login page
+const { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage } = require('../controllers/user');
+const { requireAuth } = require('../middlewares/authentication');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+// Cloudinary setup
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-router.post('/signin', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user= await User.findOne({email});
-        if(!user){
-            return res.render("signin", {
-                error: "user not exist"
-            })
-        }
-        const token = await User.matchPasswordAndGenerateToken(email, password);
-        return res.cookie("token", token).redirect("/");
-    } catch (error) {
-        return res.render("signin", {
-            error: "Invalid credentials"
-        })
-    }
+// Multer config for memory storage (instead of disk storage)
+const storage = multer.memoryStorage();
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only images are allowed'), false);
+  }
+};
+const upload = multer({ storage, fileFilter });
 
 
-})
+// Route for updating profile settings
+router.post('/update/:id', upload.single('profileImageUrl'),updateUser );
+router.get('/signin', signIn)
+router.get('/signup', signUp)
+router.post('/logout', logout);
+router.post('/signin', signInUser)
+router.post('/signup', signUpUser)
+router.get('/settings', requireAuth, getSettingsPage);
 
-router.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
-    await User.create({
-        name, email, password
-    })
-
-    return res.redirect("/user/signin")
-})
 module.exports = router;

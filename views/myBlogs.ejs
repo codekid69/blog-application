@@ -128,12 +128,6 @@
       justify-content: center;
       margin-top: 10px;
     }
-
-    .time-ago {
-      font-size: 0.9rem;
-      color: #999;
-      margin-top: 10px;
-    }
   </style>
 </head>
 
@@ -157,10 +151,6 @@
               <div class="card-body">
                 <h5 class="card-title"><%= blog.title %></h5>
                 <p class="card-text"><%= blog.body.substring(0, 150) %>...</p>
-
-                <!-- Display Time Ago -->
-                <p class="time-ago"><%= blog.timeAgo %></p>
-
                 <div class="btn-container">
                   <a href="/blog/<%= blog._id %>" class="btn btn-primary">Read More</a>
                 </div>
@@ -174,7 +164,6 @@
     <% } %>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
   <%- include('./partials/footer') %>
   <%- include('./partials/scripts') %>
 </body>

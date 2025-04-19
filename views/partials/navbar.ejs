@@ -4,36 +4,46 @@
     <!-- Brand -->
     <a class="navbar-brand" href="/">Bloggo</a>
 
-    <!-- Toggler Button -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <!-- Hamburger Content (Move to the right) -->
+    <div class="d-flex align-items-center ms-auto">
+      <% if (user) { %>
+        <!-- Profile Image + Name (visible on both mobile and desktop) -->
+        <div class="d-flex align-items-center gap-2 text-white me-3">
+          <img src="<%= user.profileImageUrl||user.pic || '/images/useravatar.png' %>" alt="profile" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+          <span><%= user.name %></span>
+        </div>
+      <% } else { %>
+        <div class="d-flex align-items-center gap-2 text-white me-3">
+          <img src="<%='/images/useravatar.png' %>" alt="guest-profile" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+          <span>Hi, Guest</span>
+        </div>
+      <% } %>
+
+      <!-- Toggler Button (Hamburger) -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
 
     <!-- Hamburger Content -->
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 flex-column flex-lg-row align-items-lg-center gap-lg-3">
 
-        <!-- Desktop view only: Name + Profile Pic -->
         <% if (user) { %>
-          <li class="nav-item d-flex align-items-center gap-2 mb-2 mb-lg-0">
-            <img src="<%= user.profileImageUrl || '/images/useravatar.png' %>" alt="profile" class="rounded-circle"
-              width="35" height="35" style="object-fit: cover;">
-            <span class="text-white">
-              <%= user.name %>
-            </span>
-          </li>
-
-
-          <!-- My Blogs Link (New) -->
           <!-- My Blogs Link -->
-          <li class="nav-item mb-2 mb-lg-0 mobile-left-margin">
+          <li class="nav-item mb-2 mb-lg-0">
             <a class="nav-link text-white" href="/blog/myblogs">My Blogs</a>
           </li>
 
           <!-- Add Blog -->
-          <li class="nav-item mb-2 mb-lg-0 mobile-left-margin">
+          <li class="nav-item mb-2 mb-lg-0">
             <a class="nav-link text-white" href="/blog">Add Blog</a>
+          </li>
+
+          <!-- Settings -->
+          <li class="nav-item mb-2 mb-lg-0">
+            <a class="nav-link text-white" href="/user/settings">Settings</a>
           </li>
 
           <!-- Logout -->
@@ -42,23 +52,12 @@
               <button class="btn btn-outline-light" type="submit">Logout</button>
             </form>
           </li>
-          <% } else { %>
-            <li class="nav-item d-none d-lg-flex align-items-center">
-              <span class="text-white me-2">Hi, Guest</span>
-              <img src="/images/useravatar.png" alt="guest-profile" class="rounded-circle" width="35" height="35"
-                style="object-fit: cover;">
-            </li>
-
-            <!-- Login Button (Mobile only) -->
-            <li class="nav-item mt-2 mt-sm-0 d-lg-none">
-              <a class="btn btn-outline-light ms-0" href="/user/signin">Login</a>
-            </li>
-
-            <!-- Login Button (Desktop only) -->
-            <li class="nav-item d-none d-lg-block">
-              <a class="btn btn-outline-light" href="/user/signin">Login</a>
-            </li>
-            <% } %>
+        <% } else { %>
+          <!-- Login Button -->
+          <li class="nav-item mb-2 mb-lg-0">
+            <a class="btn btn-outline-light" href="/user/signin">Login</a>
+          </li>
+        <% } %>
 
       </ul>
     </div>
