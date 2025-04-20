@@ -26,7 +26,25 @@ const userSchema = mongoose.Schema({
         type: String,
         enum: ["USER", "ADMIN"], //we cannot assign value other than these
         default: "USER"
-    }
+    },
+    friendList: [
+        {
+            type: mongoose.Schema.Types.ObjectId, // Store friend IDs (references to the user)
+            ref: 'User'
+        }
+    ],
+    friendRequests: [
+        {
+            type: mongoose.Schema.Types.ObjectId, // Store incoming friend request IDs
+            ref: 'User'
+        }
+    ],
+    sentFriendRequests: [
+        {
+            type: mongoose.Schema.Types.ObjectId, // Store sent friend request IDs
+            ref: 'User'
+        }
+    ]
 }, { timestamps: true })
 
 //this function will run before saving the user

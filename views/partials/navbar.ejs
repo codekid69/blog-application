@@ -9,28 +9,50 @@
       <% if (user) { %>
         <!-- Profile Image + Name (visible on both mobile and desktop) -->
         <div class="d-flex align-items-center gap-2 text-white me-3">
-          <img src="<%= user.profileImageUrl||user.pic || '/images/useravatar.png' %>" alt="profile" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
-          <span><%= user.name %></span>
-        </div>
-      <% } else { %>
-        <div class="d-flex align-items-center gap-2 text-white me-3">
-          <img src="<%='/images/useravatar.png' %>" alt="guest-profile" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
-          <span>Hi, Guest</span>
-        </div>
-      <% } %>
+          <!-- User Profile Image -->
+          <img src="<%= user.profileImageUrl || user.pic || '/images/useravatar.png' %>" alt="profile"
+            class="rounded-circle" width="35" height="35" style="object-fit: cover;">
 
-      <!-- Toggler Button (Hamburger) -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+          <!-- User Name -->
+          <span>
+            <%= user.name %>
+          </span>
+        </div>
+        <% } else { %>
+          <div class="d-flex align-items-center gap-2 text-white me-3">
+            <img src="<%='/images/useravatar.png' %>" alt="guest-profile" class="rounded-circle" width="35" height="35"
+              style="object-fit: cover;">
+            <span>Hi, Guest</span>
+          </div>
+          <% } %>
+
+            <!-- Toggler Button (Hamburger) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+              aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
     </div>
 
     <!-- Hamburger Content -->
     <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 flex-column flex-lg-row align-items-lg-center gap-lg-3">
+      <ul class="navbar-nav ms-auto mb-2 mt-2 mb-lg-0 flex-column flex-lg-row align-items-lg-center gap-lg-3">
 
         <% if (user) { %>
+          <!-- User Icon (aligned to the right in desktop, inside hamburger in mobile) -->
+          <a href="/user/friends" style="text-decoration: none;">
+            <div class="position-relative">
+              <img src="/images/useravatar.png" alt="user-icon"
+                class="rounded-circle" width="30" height="30" style="object-fit: cover; border: 2px solid #fff;">
+              
+              <% if (user && user.friendRequests.length > 0) { %>
+                <span class="position-absolute top-10 start-10 translate-middle badge rounded-pill bg-danger"
+                  style="font-size: 0.6rem;">
+                  <%= user.friendRequests.length %>
+                </span>
+              <% } %>
+            </div>
+          </a>
+          
           <!-- My Blogs Link -->
           <li class="nav-item mb-2 mb-lg-0">
             <a class="nav-link text-white" href="/blog/myblogs">My Blogs</a>
@@ -52,12 +74,14 @@
               <button class="btn btn-outline-light" type="submit">Logout</button>
             </form>
           </li>
-        <% } else { %>
-          <!-- Login Button -->
-          <li class="nav-item mb-2 mb-lg-0">
-            <a class="btn btn-outline-light" href="/user/signin">Login</a>
-          </li>
-        <% } %>
+
+
+          <% } else { %>
+            <!-- Login Button -->
+            <li class="nav-item mb-2 mb-lg-0">
+              <a class="btn btn-outline-light" href="/user/signin">Login</a>
+            </li>
+            <% } %>
 
       </ul>
     </div>

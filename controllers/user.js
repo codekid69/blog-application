@@ -152,7 +152,7 @@ const updateUser = async (req, res) => {
 const getSettingsPage = async (req, res) => {
     try {
         const user = await User.findById(req.user._id); // Fetch user details from the database
-        res.render('profile', { profileUser:user,user, otherProfile: false }); // Pass user data to the template
+        res.render('profile', { profileUser: user, user, otherProfile: false, friendStatus: '', friendRequest: '' }); // Pass user data to the template
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -171,17 +171,204 @@ const getUserProfile = async (req, res) => {
     try {
         // Find user by their ID
         const user = await User.findById(id);
+        // freindship logic
+        let friendStatus = "add"; // default → not friends and no request
+
+        // Check if already friends
+        if (user.friendList.includes(req.user._id)) {
+            friendStatus = "friend"; // Already friends
+        }
+        // Check if a friend request is already sent
+        else if (user.friendRequests.includes(req.user._id)) {
+            friendStatus = "pending"; // Request already sent by this user
+        }
+
         // Render the profile page with the user data
         return res.render('profile', {
-            profileUser:user, // passing the user data to the template
+            profileUser: user, // passing the user data to the template
             otherProfile: true, // indicates that this is another user's profile
-            user: req.user
+            user: req.user,
+            friendStatus,
+            friendRequest: ''
+
         });
+
+
     } catch (err) {
-      return res.redirect('/');
+        console.log("error", err);
+        return res.redirect('/');
+    }
+};
+
+
+const sendFriendRequest = async (req, res) => {
+    const senderId = req.user._id; // Logged-in user's ID
+    const receiverId = req.params.id; // ID of the user whose profile is being visited
+    console.log("Working on friendship - Sender ID:", senderId, "Receiver ID:", receiverId);
+
+    // Check if the sender is trying to send a request to themselves
+    if (senderId.toString() === receiverId.toString()) {
+        return res.status(400).send("You cannot send a friend request to yourself.");
+    }
+
+    try {
+        // Find sender and receiver users
+        const sender = await User.findById(senderId);
+        const receiver = await User.findById(receiverId);
+
+        if (!sender || !receiver) {
+            console.log("User not found");
+            return res.redirect('/');
+        }
+
+
+        // If the sender and receiver are already friends
+        if (sender.friendList.includes(receiverId)) {
+            console.log("Already friends");
+            return res.render('profile', {
+                user: req.user,
+                profileUser: receiver,
+                friendStatus: 'sent',
+                otherProfile: true, // or false, depending on whether it's the user's profile or another user's
+                friendRequest: "alreadyfriends"
+            });
+        }
+
+        // If the sender has already sent a request to the receiver
+        if (sender.sentFriendRequests.includes(receiverId)) {
+            console.log("Already sent a request");
+            return res.render('profile', {
+                user: req.user,
+                profileUser: receiver,
+                friendStatus: 'sent',
+                otherProfile: true, // or false, depending on whether it's the user's profile or another user's
+                friendRequest: "already"
+            });
+        }
+
+        // If the receiver has already sent a request to the sender (pending request)
+        if (receiver.friendRequests.includes(senderId)) {
+            console.log("Pending request");
+            return res.render('profile', {
+                user: req.user,
+                profileUser: receiver,
+                friendStatus: 'sent',
+                otherProfile: true, // or false, depending on whether it's the user's profile or another user's
+                friendRequest: ""
+            });
+        }
+
+        // Update receiver's friendRequests and sender's sentFriendRequests directly
+        await User.updateOne(
+            { _id: receiverId },
+            { $push: { friendRequests: senderId } }
+        );
+        console.log("Added sender to receiver's friendRequests");
+
+        await User.updateOne(
+            { _id: senderId },
+            { $push: { sentFriendRequests: receiverId } }
+        );
+        console.log("Added receiver to sender's sentFriendRequests");
+
+        // After successfully sending the friend request, render the profile page
+        return res.render('profile', {
+            user: req.user,
+            profileUser: receiver,
+            friendStatus: 'sent',
+            otherProfile: true, // or false, depending on whether it's the user's profile or another user's
+            friendRequest: "sent",
+            redirectTimeout: 3000
+        });
+
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const getFriends = async (req, res) => {
+    try {
+        console.log("freind page me",req.user)
+        const user = await User.findById(req.user._id)
+            .populate('friendRequests', 'name profileImageUrl email')
+            .populate('friendList', 'name profileImageUrl email');
+
+        res.render('friends', { user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading friends page");
+    }
+};
+
+
+ // Make sure User model is imported
+
+ const acceptFriendRequest = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const requesterId = req.params.id;
+
+        // Add each other to friendList, and remove request entries
+        await Promise.all([
+            User.updateOne(
+                { _id: currentUserId },
+                {
+                    $push: { friendList: requesterId },
+                    $pull: { friendRequests: requesterId }
+                }
+            ),
+            User.updateOne(
+                { _id: requesterId },
+                {
+                    $push: { friendList: currentUserId },
+                    $pull: { sentFriendRequests: currentUserId }
+                }
+            )
+        ]);
+
+       
+        res.redirect('/user/friends');
+    } catch (err) {
+        console.error('Error in acceptFriendRequest:', err);
+        res.status(500).send('Internal server error');
     }
 };
 
 
 
-module.exports = { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage, getUserProfile };
+
+const rejectFriendRequest = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const requesterId = req.params.id;
+
+        await Promise.all([
+            User.updateOne(
+                { _id: currentUserId },
+                { $pull: { friendRequests: requesterId } }
+            ),
+            User.updateOne(
+                { _id: requesterId },
+                { $pull: { sentFriendRequests: currentUserId } }
+            )
+        ]);
+
+        
+        res.redirect('/user/friends');
+    } catch (err) {
+        console.error('Error in rejectFriendRequest:', err);
+        res.status(500).send('Internal server error');
+    }
+};
+
+
+
+
+
+
+
+
+
+
+module.exports = { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage, getUserProfile, sendFriendRequest, getFriends, rejectFriendRequest, acceptFriendRequest };

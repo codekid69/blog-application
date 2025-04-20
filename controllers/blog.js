@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const User=require('../models/user');
 const Comment = require('../models/comment');
 const multer = require('multer');
 const streamifier = require('streamifier');
@@ -30,6 +31,9 @@ const getPostForm = (req, res) => {
 }
 const getAllBlogs = async (req, res) => {
     try {
+        if(req.user){
+            const user=User.findById(req.user._id);
+        }
         // Fetch all blogs in descending order of creation (newest first)
         const blogs = await Blog.find({})
             .sort({ createdAt: -1 }) // Sort by newest
@@ -42,7 +46,8 @@ const getAllBlogs = async (req, res) => {
         });
 
         // Render the home page and pass blogs and user info (if available)
-        return res.render('home', { user: req.user, blogs: blogsWithTime });
+        
+        return res.render('home', { user: req.user, blogs: blogsWithTime ,pendingRequestCount: req.user?.friendRequests?.length || 0});
     } catch (error) {
         console.log("Error fetching blogs:", error);
         return res.status(500).send("Server error");

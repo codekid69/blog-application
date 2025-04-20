@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>FriendZone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #151521);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-left: 5px solid #0dcaf0;
+            padding-left: 10px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: scale(1.03);
+        }
+
+        .rounded-circle {
+            border: 2px solid #0dcaf0;
+        }
+
+        .btn {
+            border-radius: 25px;
+            padding: 6px 16px;
+            margin: 5px;
+        }
+
+        .btn-success {
+            background-color: #00c896;
+            border: none;
+        }
+
+        .btn-danger {
+            background-color: #e63946;
+            border: none;
+        }
+
+        .friend-email {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        hr {
+            border-color: rgba(255, 255, 255, 0.501);
+        }
+
+        @media (max-width: 576px) {
+            h2 {
+                font-size: 1.2rem;
+                padding-left: 8px;
+            }
+
+            .glass-card {
+                padding: 1.2rem;
+            }
+
+            /* .rounded-circle {
+                width: 60px !important;
+                height: 60px !important;
+            } */
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+                margin: 3px;
+            }
+
+            .friend-email {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/navbar') %>
+    <div class="container py-4">
+
+        <div class="go-back-btn mb-3">
+            <a href="/" class="btn btn-secondary">← Go Back</a>
+        </div>
+
+        <h2>👥 Pending Friend Requests</h2>
+        <% if (user.friendRequests.length > 0) { %>
+            <div class="row">
+                <% user.friendRequests.forEach(request => { %>
+                    <div class="col-md-4 col-sm-6 col-12 mb-4">
+                        <div class="glass-card p-4 text-center">
+                            <img src="<%= request.profileImageUrl || '/images/useravatar.png' %>"
+                                class="rounded-circle mb-3" width="70" height="70">
+                            <h5><%= request.name %></h5>
+                            <div>
+                                <form action="/user/friends/accept/<%= request._id %>" method="POST"
+                                    class="d-inline">
+                                    <button class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form action="/user/friends/reject/<%= request._id %>" method="POST"
+                                    class="d-inline">
+                                    <button class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p  style="color:rgb(129, 124, 124)">No pending friend requests.</p>
+        <% } %>
+
+        <hr class="my-5" />
+
+        <h2>✅ Your Friends</h2>
+        <% if (user.friendList.length > 0) { %>
+            <div class="row">
+                <% user.friendList.forEach(friend => { %>
+                    <div class="col-md-3 col-sm-6 col-12 mb-4">
+                        <div class="glass-card p-4 text-center">
+                            <img src="<%= friend.profileImageUrl || '/images/useravatar.png' %>"
+                                class="rounded-circle mb-2" width="70" height="70">
+                            <h6><%= friend.name %></h6>
+                            <p class="friend-email"><%= friend.email %></p>
+                            <p>Interaction soon ...</p>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p style="color:rgb(129, 124, 124)">You don't have any friends yet.</p>
+        <% } %>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
