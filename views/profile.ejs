@@ -39,15 +39,32 @@
       }
 
       .profile-card {
-        /* background: #dad7d7; */
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 1);
-        max-width: 600px;
-        margin: auto;
-        display: block;
-        color: white;
-      }
+  /* existing styles */
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 1);
+  max-width: 600px;
+  margin: auto;
+  display: block;
+  color: white;
+  text-align: center; /* Add this line to center the text and buttons */
+}
+
+.profile-card .btn {
+  margin-top: 1rem;
+  display: inline-block; /* Ensures buttons appear inline */
+  margin-left: 0.5rem; /* Add space between buttons */
+  margin-right: 0.5rem; /* Add space between buttons */
+}
+
+.profile-card .btn-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* Ensure buttons wrap if they don’t fit in one row */
+  gap: 1rem; /* Space between buttons */
+}
+
 
       .profile-pic {
         width: 150px;
@@ -154,22 +171,32 @@
 
                         <!-- <p><strong>Email:</strong> <%= profileUser.email %></p> -->
                         <% if (otherProfile) { %>
-                          <% if (friendStatus==='friend' ) { %>
-                            <p class="text-success text-center mb-2">✅ friend</p>
-                            <a href="/chat/<%= profileUser._id %>" class="btn btn-success w-100">💬 Chat soon..</a>
-                            <% } else if (friendStatus==='pending' ) { %>
-                              <button class="btn btn-warning w-100" disabled>⏳ Request Pending</button>
-                              <% } else { %>
-                                <form action="/user/sendrequest/<%= profileUser._id %>" method="POST">
-                                  <button type="submit" class="btn btn-primary w-100">➕ Add Friend</button>
-                                </form>
-                                <% } %>
-                                  <% } %>
+                          <% if (isFriend) { %>
+                            <button class="btn btn-secondary" disabled>✅ Friends</button>
 
-                                    <!-- Edit Button -->
-                                    <% if (!otherProfile) { %>
-                                      <button id="editBtn" class="btn btn-primary w-100">Edit Profile</button>
-                                      <% } %>
+                            <% } else if (hasReceivedRequest) { %>
+                              <!-- This means profileUser sent request to current user -->
+                              <form action="/user/friends/accept/<%= profileUser._id %>" method="POST" class="d-inline">
+                                <button class="btn btn-success">Accept</button>
+                              </form>
+                              <form action="/user/friends/reject/<%= profileUser._id %>" method="POST" class="d-inline">
+                                <button class="btn btn-danger">Decline</button>
+                              </form>
+
+                              <% } else if (hasSentRequest) { %>
+                                <button class="btn btn-warning" disabled>📤 Request Sent</button>
+
+                                <% } else { %>
+                                  <form action="/user/sendrequest/<%= profileUser._id %>" method="POST">
+                                    <button class="btn btn-primary">➕ Add Friend</button>
+                                  </form>
+                                  <% } %>
+                                    <% } %>
+
+                                      <!-- Edit Button -->
+                                      <% if (!otherProfile) { %>
+                                        <button id="editBtn" class="btn btn-primary w-100">Edit Profile</button>
+                                        <% } %>
                       </div>
 
                       <!-- Personal Info Form (Initially hidden) -->

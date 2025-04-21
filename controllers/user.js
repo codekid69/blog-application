@@ -162,7 +162,8 @@ const getSettingsPage = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
     const id = req.params.id;
-
+    const currentUserId = req.user._id;
+    const profileUserId = req.params.id;
     // Ensure the logged-in user is not viewing their own profile
     if (req.user._id.toString() === id) {
         return res.redirect('/');
@@ -183,13 +184,23 @@ const getUserProfile = async (req, res) => {
             friendStatus = "pending"; // Request already sent by this user
         }
 
+        const currentUser = await User.findById(currentUserId);
+        const isFriend = currentUser.friendList.includes(profileUserId);
+        const hasSentRequest = currentUser.sentFriendRequests.includes(profileUserId);
+        const hasReceivedRequest = currentUser.friendRequests.includes(profileUserId);
+
+
+
         // Render the profile page with the user data
         return res.render('profile', {
             profileUser: user, // passing the user data to the template
             otherProfile: true, // indicates that this is another user's profile
             user: req.user,
             friendStatus,
-            friendRequest: ''
+            friendRequest: '',
+            isFriend,
+            hasSentRequest,
+            hasReceivedRequest
 
         });
 
@@ -205,7 +216,8 @@ const sendFriendRequest = async (req, res) => {
     const senderId = req.user._id; // Logged-in user's ID
     const receiverId = req.params.id; // ID of the user whose profile is being visited
     console.log("Working on friendship - Sender ID:", senderId, "Receiver ID:", receiverId);
-
+    const currentUserId = req.user._id;
+    const profileUserId = req.params.id;
     // Check if the sender is trying to send a request to themselves
     if (senderId.toString() === receiverId.toString()) {
         return res.status(400).send("You cannot send a friend request to yourself.");
@@ -221,11 +233,18 @@ const sendFriendRequest = async (req, res) => {
             return res.redirect('/');
         }
 
+        const currentUser = await User.findById(currentUserId);
+        const isFriend = currentUser.friendList.includes(profileUserId);
+        const hasSentRequest = currentUser.sentFriendRequests.includes(profileUserId);
+        const hasReceivedRequest = currentUser.friendRequests.includes(profileUserId);
 
         // If the sender and receiver are already friends
         if (sender.friendList.includes(receiverId)) {
             console.log("Already friends");
             return res.render('profile', {
+                isFriend,
+                hasSentRequest,
+                hasReceivedRequest,
                 user: req.user,
                 profileUser: receiver,
                 friendStatus: 'sent',
@@ -238,6 +257,9 @@ const sendFriendRequest = async (req, res) => {
         if (sender.sentFriendRequests.includes(receiverId)) {
             console.log("Already sent a request");
             return res.render('profile', {
+                isFriend,
+                hasSentRequest,
+                hasReceivedRequest,
                 user: req.user,
                 profileUser: receiver,
                 friendStatus: 'sent',
@@ -250,6 +272,9 @@ const sendFriendRequest = async (req, res) => {
         if (receiver.friendRequests.includes(senderId)) {
             console.log("Pending request");
             return res.render('profile', {
+                isFriend,
+                hasSentRequest,
+                hasReceivedRequest,
                 user: req.user,
                 profileUser: receiver,
                 friendStatus: 'sent',
@@ -273,6 +298,9 @@ const sendFriendRequest = async (req, res) => {
 
         // After successfully sending the friend request, render the profile page
         return res.render('profile', {
+            isFriend,
+            hasSentRequest,
+            hasReceivedRequest,
             user: req.user,
             profileUser: receiver,
             friendStatus: 'sent',
@@ -289,7 +317,7 @@ const sendFriendRequest = async (req, res) => {
 
 const getFriends = async (req, res) => {
     try {
-        console.log("freind page me",req.user)
+        console.log("freind page me", req.user)
         const user = await User.findById(req.user._id)
             .populate('friendRequests', 'name profileImageUrl email')
             .populate('friendList', 'name profileImageUrl email');
@@ -302,9 +330,9 @@ const getFriends = async (req, res) => {
 };
 
 
- // Make sure User model is imported
+// Make sure User model is imported
 
- const acceptFriendRequest = async (req, res) => {
+const acceptFriendRequest = async (req, res) => {
     try {
         const currentUserId = req.user._id;
         const requesterId = req.params.id;
@@ -327,7 +355,7 @@ const getFriends = async (req, res) => {
             )
         ]);
 
-       
+
         res.redirect('/user/friends');
     } catch (err) {
         console.error('Error in acceptFriendRequest:', err);
@@ -354,7 +382,7 @@ const rejectFriendRequest = async (req, res) => {
             )
         ]);
 
-        
+
         res.redirect('/user/friends');
     } catch (err) {
         console.error('Error in rejectFriendRequest:', err);
