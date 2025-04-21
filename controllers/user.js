@@ -2,6 +2,7 @@ const User = require('../models/user');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { createTokenForUser } = require('../services/auth');
+const transporter = require('../utils/mail');
 require('dotenv').config();
 // Cloudinary setup
 cloudinary.config({
@@ -296,6 +297,27 @@ const sendFriendRequest = async (req, res) => {
         );
         console.log("Added receiver to sender's sentFriendRequests");
 
+        //sending mail notification
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: receiver.email, // assuming receiver has an 'email' field
+            subject: 'New Friend Request!',
+            html: `<p>Hi ${receiver.name},</p>
+                 <p>You’ve received a new friend request from <strong>${sender.name}</strong>.</p>
+                 <p>Visit their profile to accept or decline the request.</p>
+                 <br/>
+                 <p>Thanks,<br/>Bloggo</p>`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error);
+            } else {
+                console.log('Friend request email sent:', info.response);
+            }
+        });
+
+
         // After successfully sending the friend request, render the profile page
         return res.render('profile', {
             isFriend,
@@ -337,6 +359,9 @@ const acceptFriendRequest = async (req, res) => {
         const currentUserId = req.user._id;
         const requesterId = req.params.id;
 
+        const currentUser = await User.findById(currentUserId);  // receiver
+        const requester = await User.findById(requesterId);      // sender
+
         // Add each other to friendList, and remove request entries
         await Promise.all([
             User.updateOne(
@@ -355,6 +380,26 @@ const acceptFriendRequest = async (req, res) => {
             )
         ]);
 
+
+        // sending notification
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: requester.email,
+            subject: 'Your Friend Request was Accepted!',
+            html: `<p>Hi ${requester.name},</p>
+                   <p><strong>${currentUser.name}</strong> has accepted your friend request!</p>
+                   <p>You’re now friends on Bloggo.</p>
+                   <br/>
+                   <p>Cheers,<br/>Bloggo </p>`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending acceptance email:', error);
+            } else {
+                console.log('Friend acceptance email sent:', info.response);
+            }
+        });
 
         res.redirect('/user/friends');
     } catch (err) {
