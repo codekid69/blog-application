@@ -170,19 +170,16 @@
                     <div class="blog-author d-flex align-items-center gap-2">
                       <img
                         src="<%= blog.createdBy?.profileImageUrl || 'https://res.cloudinary.com/demo/image/upload/v123456/default-avatar.jpg' %>"
-                        alt="Profile Pic"
-                        class="rounded-circle"
-                        width="32"
-                        height="32"
-                        style="object-fit: cover;">
+                        alt="Profile Pic" class="rounded-circle" width="32" height="32" style="object-fit: cover;">
                       <span>
                         <strong>
-                          <%= blog.createdBy?.name || 'Unknown' %>
+                          <%= blog.createdBy?.isCEO ? '⭐ ' : '' %>
+                            <%= blog.createdBy?.name || 'Unknown' %>
                         </strong> | <%= blog.timeAgo %>
                       </span>
                     </div>
                   </a>
-                  
+
 
                   <p class="card-text">
                     <%= blog.body.substring(0, 150) %>...

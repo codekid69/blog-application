@@ -30,6 +30,7 @@ const getPostForm = (req, res) => {
     return res.render("addBlog", { user: req.user });
 }
 const getAllBlogs = async (req, res) => {
+    const CEO_EMAIL = process.env.CEO_EMAIL;
     try {
         if (req.user) {
             const user = User.findById(req.user._id);
@@ -42,6 +43,9 @@ const getAllBlogs = async (req, res) => {
         // Calculate time ago for each blog
         const blogsWithTime = blogs.map(blog => {
             blog.timeAgo = timeAgo(blog.createdAt);
+            if (blog.createdBy?.email === CEO_EMAIL) {
+                blog.createdBy.isCEO = true;
+            }
             return blog;
         });
 
