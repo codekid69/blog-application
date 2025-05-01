@@ -42,7 +42,7 @@ async function generateImageFromPrompt(prompt) {
         // console.log("🖼️ Saved Image URL:", imageUrl);
         return imageUrl;
     } catch (err) {
-        console.error('❌ Image generation error:', err.message);
+        // console.error('❌ Image generation error:', err.message);
         return null;
     }
 }

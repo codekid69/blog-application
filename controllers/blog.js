@@ -1,11 +1,11 @@
 const Blog = require('../models/blog');
-const User=require('../models/user');
+const User = require('../models/user');
 const Comment = require('../models/comment');
 const multer = require('multer');
 const streamifier = require('streamifier');
 const cloudinary = require('cloudinary').v2;
 const timeAgo = require('../utils/timeAgo');
-const transporter  = require('../utils/mail');
+const transporter = require('../utils/mail');
 require('dotenv').config();
 
 // Cloudinary setup
@@ -31,8 +31,8 @@ const getPostForm = (req, res) => {
 }
 const getAllBlogs = async (req, res) => {
     try {
-        if(req.user){
-            const user=User.findById(req.user._id);
+        if (req.user) {
+            const user = User.findById(req.user._id);
         }
         // Fetch all blogs in descending order of creation (newest first)
         const blogs = await Blog.find({})
@@ -46,8 +46,8 @@ const getAllBlogs = async (req, res) => {
         });
 
         // Render the home page and pass blogs and user info (if available)
-        
-        return res.render('home', { user: req.user, blogs: blogsWithTime ,pendingRequestCount: req.user?.friendRequests?.length || 0});
+
+        return res.render('home', { user: req.user, blogs: blogsWithTime, pendingRequestCount: req.user?.friendRequests?.length || 0 });
     } catch (error) {
         console.log("Error fetching blogs:", error);
         return res.status(500).send("Server error");
@@ -94,6 +94,34 @@ const createBlog = async (req, res) => {
             coverImageUrl,  // Save the Cloudinary URL in the database
             createdBy: req.user._id
         });
+    //    console.log("Blog created:", blog);
+        // sending Firends notifiation on post 
+        const userWithFriends = await User.findById(req.user._id)
+            .populate('friendList', 'email')  // Only get friend's email field
+        const friendEmails = userWithFriends.friendList.map(friend => friend.email);
+
+        if (friendEmails.length > 0) {
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: friendEmails,  // array is allowed
+                subject: `📝 New Blog from ${userWithFriends.name}`,
+                html: `
+                <h2>${title}</h2>
+                <p>${body.slice(0, 200)}...</p> <!-- Preview of the first 200 characters of the body -->
+                ${coverImageUrl ? `<img src="${coverImageUrl}" width="400"/>` : ''}
+                <p>Posted by: ${userWithFriends.name}</p>
+                <p><a href="https://blog-application-hal1.onrender.com/blog/${blog._id}">Read More</a></p> <!-- Link to the full post -->
+            `
+            };
+
+            transporter.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    console.error("Failed to send emails:", err);
+                } else {
+                    console.log("Emails sent",);
+                }
+            });
+        }
 
         res.redirect('/');
     } catch (err) {
@@ -168,7 +196,7 @@ const getPostDetails = async (req, res) => {
 
         // Check if the user is the owner of the blog
         const isOwner = req.user && req.user._id.toString() === blog.createdBy._id.toString();
-    console.log("rendering",blog);
+        // console.log("rendering", blog);
         // Render blog page with populated data
         return res.render('blog', { blog, isOwner, user: req.user, message: req.query.msg });
 
