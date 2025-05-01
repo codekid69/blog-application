@@ -94,7 +94,7 @@ const createBlog = async (req, res) => {
             coverImageUrl,  // Save the Cloudinary URL in the database
             createdBy: req.user._id
         });
-    //    console.log("Blog created:", blog);
+        //    console.log("Blog created:", blog);
         // sending Firends notifiation on post 
         const userWithFriends = await User.findById(req.user._id)
             .populate('friendList', 'email')  // Only get friend's email field
@@ -103,15 +103,16 @@ const createBlog = async (req, res) => {
         if (friendEmails.length > 0) {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
-                to: friendEmails,  // array is allowed
+                to: `"Blog Notifications" <no-reply@Bloggo>` ,// sender's address or a placeholder
+                bcc: friendEmails, // ✅ this hides the list from recipients
                 subject: `📝 New Blog from ${userWithFriends.name}`,
                 html: `
-                <h2>${title}</h2>
-                <p>${body.slice(0, 200)}...</p> <!-- Preview of the first 200 characters of the body -->
-                ${coverImageUrl ? `<img src="${coverImageUrl}" width="400"/>` : ''}
-                <p>Posted by: ${userWithFriends.name}</p>
-                <p><a href="https://blog-application-hal1.onrender.com/blog/${blog._id}">Read More</a></p> <!-- Link to the full post -->
-            `
+                    <h2>${title}</h2>
+                    <p>${body.slice(0, 200)}...</p>
+                    ${coverImageUrl ? `<img src="${coverImageUrl}" width="400"/>` : ''}
+                    <p>Posted by: ${userWithFriends.name}</p>
+                    <p><a href="https://blog-application-hal1.onrender.com/blog/${blog._id}">Read More</a></p>
+                `
             };
 
             transporter.sendMail(mailOptions, (err, info) => {
