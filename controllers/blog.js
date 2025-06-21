@@ -57,58 +57,68 @@ const getAllBlogs = async (req, res) => {
         return res.status(500).send("Server error");
     }
 }
+const fs = require('fs');
+const path = require('path');
+
 const createBlog = async (req, res) => {
-    const { title, body } = req.body;
-    const coverImage = req.file;  // Get file from multer
+    const { title, body, aiImageUrl } = req.body;
+    const coverImage = req.file;  // From multer
 
     let coverImageUrl = null;
 
-    if (coverImage) {
-        try {
-
-            // Upload image directly to Cloudinary from memory buffer
+    try {
+        if (coverImage) {
+            // Upload manually uploaded image to Cloudinary
             const result = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: 'blog_images', public_id: Date.now() + '-' + coverImage.originalname },
                     (error, result) => {
                         if (error) {
-                            console.error(" Cloudinary upload error:", error);
-                            reject(error);
+                            console.error("Cloudinary upload error:", error);
+                            return reject(error);
                         }
                         resolve(result);
                     }
                 );
                 streamifier.createReadStream(coverImage.buffer).pipe(stream);
             });
+            coverImageUrl = result.secure_url;
 
-            coverImageUrl = result.secure_url;  // URL of the uploaded image
-
-        } catch (error) {
-            console.error('Error uploading image to Cloudinary:', error);
-            return res.status(500).send('Error uploading image');
+        } else if (aiImageUrl) {
+            // Upload AI-generated image (local path) to Cloudinary
+            const absolutePath = path.join(__dirname, '..', 'public', aiImageUrl);
+            if (fs.existsSync(absolutePath)) {
+                const result = await cloudinary.uploader.upload(absolutePath, {
+                    folder: 'blog_ai_images',
+                    public_id: 'ai_' + Date.now()
+                });
+                coverImageUrl = result.secure_url;
+                fs.unlinkSync(absolutePath); // Clean up local AI file
+            } else {
+                console.warn("AI image path not found:", absolutePath);
+            }
+        } else {
+            console.warn("No image uploaded or generated.");
         }
-    } else {
-        console.warn(" No image uploaded.");
-    }
 
-    try {
         const blog = await Blog.create({
             title,
             body,
-            coverImageUrl,  // Save the Cloudinary URL in the database
+            coverImageUrl,
             createdBy: req.user._id
         });
-        //    console.log("Blog created:", blog);
-        // sending Firends notifiation on post 
+
+        // Notify friends
         const userWithFriends = await User.findById(req.user._id)
-            .populate('friendList', 'email')  // Only get friend's email field
+            .populate('friendList', 'email');
+
         const friendEmails = userWithFriends.friendList.map(friend => friend.email);
 
         if (friendEmails.length > 0) {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
-                to: `"Blog Notifications" <no-reply@Bloggo>` ,// sender's address or a placeholder
-                bcc: friendEmails, // ✅ this hides the list from recipients
+                to: `"Blog Notifications" <no-reply@Bloggo>`,
+                bcc: friendEmails,
                 subject: `📝 New Blog from ${userWithFriends.name}`,
                 html: `
                     <h2>${title}</h2>
@@ -123,17 +133,18 @@ const createBlog = async (req, res) => {
                 if (err) {
                     console.error("Failed to send emails:", err);
                 } else {
-                    console.log("Emails sent",);
+                    console.log("Emails sent");
                 }
             });
         }
 
         res.redirect('/');
     } catch (err) {
-        console.error(" Error creating blog:", err);
+        console.error("Error creating blog:", err);
         res.status(500).send("Something went wrong");
     }
-}
+};
+
 // get my Blogs
 const getMyPost = async (req, res) => {
     try {

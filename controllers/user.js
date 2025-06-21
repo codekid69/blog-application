@@ -201,8 +201,9 @@ const getUserProfile = async (req, res) => {
             friendRequest: '',
             isFriend,
             hasSentRequest,
-            hasReceivedRequest
-
+            hasReceivedRequest,
+            profileImageUrl: user.profileImageUrl || '/images/useravatar.png',
+            userName: user.name || 'User',
         });
 
 

@@ -1,0 +1,19 @@
+<!-- Chat Popup Modal -->
+<div id="chatPopup" class="chat-popup">
+  <div class="chat-popup-content">
+    <div class="chat-header">
+      <span id="chatUsername"><%= username %></span>
+      <button id="closeChatBtn" class="btn-close">&times;</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+      <!-- Chat messages will appear here -->
+    </div>
+    <div class="chat-input">
+      <textarea id="chatMessageInput" class="form-control" rows="3" placeholder="Type your message..."></textarea>
+      <button id="sendMessageBtn" class="btn btn-primary w-100 mt-2">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Icon Button -->
+<button id="chatBtn" class="btn btn-info chat-btn" title="Open chat with <%= username %>">💬</button>

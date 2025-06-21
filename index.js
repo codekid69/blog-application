@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const userRoute = require('./routes/user');
 const blogRoute = require('./routes/blog');
 const staticRoutes = require('./routes/staticRoutes.js');
+const chatRouter = require("./routes/chat.js");
 const apiRoute = require('./routes/apiRoute.js');
 const db = require('./config/db');
 require('dotenv').config();
@@ -38,7 +39,7 @@ app.use('/generated', express.static(path.join(__dirname, 'public', 'generated')
 app.set('view engine', 'ejs');
 app.set('views', path.resolve('./views'));
 
-
+app.use("/chat", chatRouter);
 app.use('/user', userRoute);
 app.use('/blog', blogRoute)
 app.use('/api',apiRoute)
