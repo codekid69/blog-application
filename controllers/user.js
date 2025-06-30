@@ -41,6 +41,7 @@ const logout = (req, res) => {
 const signInUser = async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log("signin user", email, password);
         const user = await User.findOne({ email });
         if (!user) {
             return res.render("signin", {

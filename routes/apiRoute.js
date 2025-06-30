@@ -96,8 +96,15 @@ router.post('/generate-blog', async (req, res) => {
         res.json({ title, description, imageUrl });
 
     } catch (error) {
-        console.error("❌ Blog generation error:", error.message);
-        res.status(500).json({ error: "An error occurred while generating the blog" });
+        if (error.response) {
+            // Log everything from the failed response
+            console.error('❌ Blog generation error:', error.response.status, error.response.data);
+            res.status(500).json({ error: error.response.data || "An error occurred while generating the blog" });
+        } else {
+            // Log generic error
+            console.error('❌ Blog generation error:', error.message);
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
