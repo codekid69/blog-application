@@ -2,7 +2,7 @@ const User = require('../models/user');
 const express = require('express');
 const router = express.Router();
 const { signIn, signUp, logout, signInUser, signUpUser, updateUser, getSettingsPage, getUserProfile, sendFriendRequest, getFriends, rejectFriendRequest, acceptFriendRequest } = require('../controllers/user');
-const { requireAuth } = require('../middlewares/authentication');
+const { requireAuth, checkForAuthenticationCookie } = require('../middlewares/authentication');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
@@ -30,7 +30,7 @@ router.post('/update/:id', upload.single('profileImageUrl'),updateUser );
 router.get('/signin', signIn)
 router.get('/signup', signUp)
 router.post('/logout', logout);
-router.post('/signin', signInUser)
+router.post('/signin',checkForAuthenticationCookie("token"), signInUser)
 router.post('/signup', signUpUser)
 router.get('/settings', requireAuth, getSettingsPage);
 router.get('/profile/:id',requireAuth,getUserProfile);

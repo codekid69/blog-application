@@ -52,7 +52,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', authRoute);
 
 // ✅ Apply token check after Google routes
-app.use(checkForAuthenticationCookie("token"));
+// app.use(checkForAuthenticationCookie("token"));
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
