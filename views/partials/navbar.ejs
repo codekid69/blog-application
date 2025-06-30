@@ -70,9 +70,13 @@
 
           <!-- Logout -->
           <li class="nav-item mb-2 mb-lg-0">
-            <form action="/user/logout" method="POST" class="d-inline">
-              <button class="btn btn-outline-light" type="submit">Logout</button>
-            </form>
+            <% if (user.googleId) { %>
+              <a class="btn btn-outline-light" href="/logout">Logout</a>
+            <% } else { %>
+              <form action="/user/logout" method="POST" class="d-inline">
+                <button class="btn btn-outline-light" type="submit">Logout</button>
+              </form>
+            <% } %>
           </li>
 
 

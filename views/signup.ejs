@@ -3,7 +3,7 @@
 
 <head>
   <%- include('./partials/head') %>
-  <title>Sign Up - Bloggo</title>
+    <title>Sign Up - Bloggo</title>
 </head>
 
 <body>
@@ -25,16 +25,23 @@
 
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="example@email.com" required>
+                <input type="email" class="form-control" id="email" name="email" placeholder="example@email.com"
+                  required>
               </div>
 
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="********" required>
+                <input type="password" class="form-control" id="password" name="password" placeholder="********"
+                  required>
               </div>
 
               <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+
             </form>
+
+            <a href="/auth/google">
+              <button>sign up with Google</button>
+            </a>
 
             <div class="text-center mt-3">
               <small>Already have an account? <a href="/user/signin">Login</a></small>
